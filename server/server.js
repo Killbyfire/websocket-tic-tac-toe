@@ -17,4 +17,4 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, publicFolder, "index.html"));
 });
 
-app.listen(3000);
+server.listen(3000);
