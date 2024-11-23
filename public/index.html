@@ -5,11 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multiplayer tic tac toe</title>
   </head>
+  <script src="/socket.io/socket.io.js"></script>
   <body>
-    <h1>Hello world</h1>
-    <script src="/socket.io/socket.io.js"></script>
+    <h1>Create or join a room</h1>
+    <label>Create</label>
+    <button id="createButton">Create room</button>
+    <label>Join room</label>
+    <input />
+
     <script>
       var socket = io();
+
+      // Use location storage to determine if user already has user ID otherwise assign new
+      const userID = localStorage.getItem("userID");
+
+      if (!userID) {
+        const newUserUUID = crypto.randomUUID();
+        localStorage.setItem("userID", newUserUUID);
+        userID = newUserUUID;
+      }
+
+      const createButton = document.getElementById("createButton");
+
+      createButton.addEventListener("click", () => {
+        generateNewRoom();
+      });
+
+      function generateNewRoom() {
+        const characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let generatedRoomUUID = "";
+        for (let i = 0; i < 5; i++) {
+          generatedRoomUUID += characters.charAt(
+            Math.floor(Math.random() * characters.length)
+          );
+        }
+
+        socket.emit("registerRoom", {
+          roomID: generatedRoomUUID,
+          playerID: userID,
+        });
+
+        location.pathname = "/game/" + generatedRoomUUID;
+      }
     </script>
   </body>
 </html>
