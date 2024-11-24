@@ -12,3 +12,5 @@ function createGrid() {
     }
   }
 }
+
+createGrid();
