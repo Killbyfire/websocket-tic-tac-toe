@@ -11,6 +11,8 @@ const io = new Server(server);
 
 const publicFolder = "../public/";
 
+app.use(express.static(path.join(__dirname, publicFolder)));
+
 io.on("connection", (socket) => {
   socket.on("userConnected", (userID) => {
     console.log("User connected with userID: " + userID);
