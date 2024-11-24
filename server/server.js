@@ -45,10 +45,16 @@ app.post(apiPath + "rooms/players", function (req, res) {
   res.send({ players: foundRoom[0].players });
 });
 
-app.get("/game/:gameID", function (req, res) {
-  const gameID = req.params.gameID;
+app.get("/room/:roomID", function (req, res) {
+  const roomID = req.params.roomID;
 
-  res.sendFile(path.join(__dirname, publicFolder, "game.html"));
+  const foundRoom = currentRooms.filter((room) => room.roomID === roomID);
+
+  if (!foundRoom.length > 0) {
+    res.redirect("/");
+  } else {
+    res.sendFile(path.join(__dirname, publicFolder, "room.html"));
+  }
 });
 
 app.get("/", function (req, res) {
