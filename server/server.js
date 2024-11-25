@@ -17,6 +17,16 @@ const apiPath = "/api/v1/";
 
 app.use(express.static(path.join(__dirname, publicFolder)));
 
+function doesRoomExist(roomID) {
+  const foundRoom = currentRooms.filter((room) => room.roomID === roomID);
+
+  if (foundRoom.length > 0) {
+    return true;
+  }
+
+  return false;
+}
+
 io.on("connection", (socket) => {
   socket.on("userConnected", (userID) => {
     console.log("User connected with userID: " + userID);
@@ -37,7 +47,11 @@ io.on("connection", (socket) => {
 app.post(apiPath + "rooms/players", function (req, res) {
   const roomID = req.body.roomID ? req.body.roomID : null;
   if (!roomID) {
-    res.send({ status: "No room found" });
+    res.sendStatus(404);
+  }
+
+  if (!doesRoomExist(roomID)) {
+    res.sendStatus(404);
   }
 
   const foundRoom = currentRooms.filter((room) => room.roomID === roomID);
@@ -48,10 +62,9 @@ app.post(apiPath + "rooms/players", function (req, res) {
 app.get("/room/:roomID", function (req, res) {
   const roomID = req.params.roomID;
 
-  const foundRoom = currentRooms.filter((room) => room.roomID === roomID);
-
-  if (!foundRoom.length > 0) {
+  if (!doesRoomExist(roomID)) {
     res.redirect("/");
+    // Use else here because otherwise there will be a error that headers are already sent
   } else {
     res.sendFile(path.join(__dirname, publicFolder, "room.html"));
   }
