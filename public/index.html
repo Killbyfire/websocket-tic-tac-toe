@@ -16,6 +16,10 @@
     <script>
       var socket = io();
 
+      socket.on("connect", () => {
+        console.log("Socket is ready to be used.");
+      });
+
       // Use location storage to determine if user already has user ID otherwise assign new
       const userID = localStorage.getItem("userID");
 

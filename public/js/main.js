@@ -1,3 +1,9 @@
+function markSquare(col, row, player) {
+  const square = document.getElementById(`square-${row}-${col}`);
+
+  const image = square.querySelector("img");
+}
+
 function createGrid() {
   const grid = document.getElementById("grid");
 
@@ -6,8 +12,12 @@ function createGrid() {
     row.classList.add("gridRow");
     grid.appendChild(row);
     for (let j = 0; j < 3; j++) {
+      const squareID = `square-${i}-${col}`;
       const col = document.createElement("div");
-      col.classList.add("gridSquare");
+      const image = document.createElement("img");
+      col.classList.add("gridSquare", "x-symbol");
+      image.id = squareID;
+      col.id = squareID;
       row.appendChild(col);
     }
   }
