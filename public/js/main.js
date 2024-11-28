@@ -1,8 +1,53 @@
-function markSquare(col, row, player) {
-  const square = document.getElementById(`square-${row}-${col}`);
+const players = { player1: "x-symbol.svg", player2: "o-symbol.svg" };
 
+const assetFolder = "./assets/";
+
+let currentTurn = 0;
+
+function markSquare(square) {
   const image = square.querySelector("img");
+
+  // Don't allow a square to be played again
+  if (image.src) {
+    return;
+  }
+
+  const playImage = assetFolder + players[Object.keys(players)[currentTurn]];
+
+  image.src = playImage;
+
+  // Use 0 and 1 and -1 for empty
+  currentTurn ? (currentTurn = 0) : (currentTurn = 1);
+  currentTurn ? (square.dataset.player = 0) : (square.dataset.player = 1);
 }
+
+function getBoard() {
+  const board = document.querySelector("div#grid");
+
+  const boardArray = [];
+
+  const rows = board.children;
+
+  for (let i = 0; i < rows.length; i++) {
+    boardArray.push([]);
+    const columns = rows[i].children;
+    for (let j = 0; j < columns.length; j++) {
+      const player = columns[j].dataset.player;
+
+      if (!player) {
+        boardArray[i].push(-1);
+      } else {
+        boardArray[i].push(parseInt(player));
+      }
+    }
+  }
+
+  return boardArray;
+}
+
+// Use neighbor functions
+// Check neighbor of every square
+function checkWinState() {}
 
 function createGrid() {
   const grid = document.getElementById("grid");
@@ -12,12 +57,13 @@ function createGrid() {
     row.classList.add("gridRow");
     grid.appendChild(row);
     for (let j = 0; j < 3; j++) {
-      const squareID = `square-${i}-${col}`;
       const col = document.createElement("div");
       const image = document.createElement("img");
-      col.classList.add("gridSquare", "x-symbol");
-      image.id = squareID;
-      col.id = squareID;
+      col.classList.add("gridSquare");
+      col.addEventListener("click", () => {
+        markSquare(col);
+      });
+      col.appendChild(image);
       row.appendChild(col);
     }
   }
