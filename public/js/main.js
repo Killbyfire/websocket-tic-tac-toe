@@ -1,8 +1,25 @@
 const players = { player1: "x-symbol.svg", player2: "o-symbol.svg" };
 
+const turnIndication = document.getElementById("currentTurn");
+
 const assetFolder = "./assets/";
 
 let currentTurn = 0;
+
+function setPlayerUUID(playerUUID) {
+  localStorage.setItem("playerID", playerUUID);
+
+  return true;
+}
+
+function getPlayerUUID() {
+  return localStorage.getItem("playerID");
+}
+
+function updatePayerIndication() {
+  const playerNumber = currentTurn + 1;
+  turnIndication.innerText = `It is currently player ${playerNumber}'s turn`;
+}
 
 function markSquare(square) {
   const image = square.querySelector("img");
@@ -19,6 +36,8 @@ function markSquare(square) {
   // Use 0 and 1 and -1 for empty
   currentTurn ? (currentTurn = 0) : (currentTurn = 1);
   currentTurn ? (square.dataset.player = 0) : (square.dataset.player = 1);
+
+  updatePayerIndication();
 }
 
 function getBoard() {
@@ -67,6 +86,8 @@ function createGrid() {
       row.appendChild(col);
     }
   }
+
+  updatePayerIndication();
 }
 
 createGrid();
