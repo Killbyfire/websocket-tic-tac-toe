@@ -11,4 +11,18 @@ const trackedStats = {
     },
   ],
 };
-const formattedStats = ["Games Won", "Games Lost"];
+
+const formattedStats = [
+  "Games Won",
+  "Games Tied",
+  "Games Lost",
+  "Games Played",
+];
+
+function getTrackedStats() {
+  const storedStats = localStorage.getItem("trackedStats");
+  if (!storedStats) {
+    localStorage.setItem("trackedStats", trackedStats);
+    return;
+  }
+}
