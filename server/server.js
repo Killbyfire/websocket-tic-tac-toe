@@ -33,19 +33,30 @@ io.on("connection", (socket) => {
   // });
 
   // ! This also fires on reload. Use userID to check and based on rooms
+  // TODO WIP
+  socket.on("checkRoomExists", (room) => {
+    const room = io.sockets.adapter.rooms.get(room);
+  });
 
-  let playerAssign = 0;
+  socket.on("joinRoom", (room) => {
+    let playerCount = io.sockets.adapter.rooms.get(room);
 
-  if (players.length === 1) {
-    playerAssign = 1;
-  }
-  if (players.length > 1) {
-    playerAssign = -1;
-  }
+    !playerCount ? (playerCount = 0) : (playerCount = playerCount.size);
 
-  socket.emit("playerAssign", playerAssign);
+    socket.join(room);
 
-  players.push(playerAssign);
+    let playerAssign = 0;
+
+    // ? This is buggy on reload
+    if (playerCount === 1) {
+      playerAssign = 1;
+    }
+    if (playerCount > 1) {
+      playerAssign = -1;
+    }
+
+    socket.emit("playerAssign", playerAssign);
+  });
 
   socket.on("updateMove", (row, col) => {
     io.emit("updateMove", row, col);

@@ -133,8 +133,6 @@ function checkWinState() {
     }
   }
 
-  console.log(won);
-
   if (won) {
     socket.emit("playerWon");
   }
@@ -167,6 +165,8 @@ function createGrid() {
 
   updatePayerIndication();
 }
+
+socket.emit("joinRoom", "test1");
 
 socket.on("playerAssign", (player) => {
   currentPlayer = player;
