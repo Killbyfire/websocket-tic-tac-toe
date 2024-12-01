@@ -4,6 +4,10 @@ const turnIndication = document.getElementById("currentTurn");
 
 const assetFolder = "./assets/";
 
+var socket = io();
+
+// Player 0 and are allowed to play and -1 is spectating
+let currentPlayer;
 let currentTurn = 0;
 let inputBlocked = false;
 
@@ -32,10 +36,12 @@ function updatePayerIndication() {
   turnIndication.innerText = `It is currently player ${playerNumber}'s turn`;
 }
 
-function markSquare(square) {
+function markSquare(row, col) {
   if (inputBlocked) {
     return;
   }
+
+  const square = document.getElementById(`col-${row}-${col}`);
 
   const image = square.querySelector("img");
 
@@ -47,8 +53,6 @@ function markSquare(square) {
   const playImage = assetFolder + players[Object.keys(players)[currentTurn]];
 
   image.src = playImage;
-
-  const currentWinner = currentTurn;
 
   // Use 0 and 1 and -1 for empty
   currentTurn ? (currentTurn = 0) : (currentTurn = 1);
@@ -132,12 +136,13 @@ function checkWinState() {
   console.log(won);
 
   if (won) {
-    setWinText();
+    socket.emit("playerWon");
   }
 
   return;
 }
 
+//TODO Make this cleaner
 function createGrid() {
   const grid = document.getElementById("grid");
 
@@ -148,9 +153,12 @@ function createGrid() {
     for (let j = 0; j < 3; j++) {
       const col = document.createElement("div");
       const image = document.createElement("img");
+      col.id = `col-${i}-${j}`;
       col.classList.add("gridSquare");
       col.addEventListener("click", () => {
-        markSquare(col);
+        if (currentPlayer === currentTurn) {
+          socket.emit("updateMove", i, j);
+        }
       });
       col.appendChild(image);
       row.appendChild(col);
@@ -159,5 +167,17 @@ function createGrid() {
 
   updatePayerIndication();
 }
+
+socket.on("playerAssign", (player) => {
+  currentPlayer = player;
+});
+
+socket.on("updateMove", (row, col) => {
+  markSquare(row, col);
+});
+
+socket.on("playerWon", () => {
+  setWinText();
+});
 
 createGrid();

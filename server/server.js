@@ -13,22 +13,46 @@ app.use(express.urlencoded({ extended: true }));
 const publicFolder = "../public/";
 const apiPath = "/api/v1/";
 
+// Replace this with length of players in a room
+const players = [];
+
 app.use(express.static(path.join(__dirname, publicFolder)));
 
 io.on("connection", (socket) => {
-  socket.on("userConnected", (userID) => {
-    console.log("User connected with userID: " + userID);
+  // socket.on("userConnected", (userID) => {
+  //   console.log("User connected with userID: " + userID);
+  // });
+  // socket.on("registerRoom", (roomDetails) => {
+  //   console.log(
+  //     "A new room has been created with the ID: " + roomDetails.roomID
+  //   );
+  //   currentRooms.push({
+  //     roomID: roomDetails.roomID,
+  //     players: [roomDetails.playerID],
+  //   });
+  // });
+
+  // ! This also fires on reload. Use userID to check and based on rooms
+
+  let playerAssign = 0;
+
+  if (players.length === 1) {
+    playerAssign = 1;
+  }
+  if (players.length > 1) {
+    playerAssign = -1;
+  }
+
+  socket.emit("playerAssign", playerAssign);
+
+  players.push(playerAssign);
+
+  socket.on("updateMove", (row, col) => {
+    io.emit("updateMove", row, col);
   });
 
-  socket.on("registerRoom", (roomDetails) => {
-    console.log(
-      "A new room has been created with the ID: " + roomDetails.roomID
-    );
-
-    currentRooms.push({
-      roomID: roomDetails.roomID,
-      players: [roomDetails.playerID],
-    });
+  socket.on("playerWon", () => {
+    io.emit("playerWon");
   });
 });
 
