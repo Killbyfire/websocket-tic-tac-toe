@@ -11,13 +11,21 @@ let currentPlayer;
 let currentTurn = 0;
 let inputBlocked = false;
 
-function setPlayerUUID(playerUUID) {
-  localStorage.setItem("playerID", playerUUID);
+function generatePlayerUUID() {
+  const newPlayerUUID = crypto.randomUUID();
+  localStorage.setItem("playerID", newPlayerUUID);
   return;
 }
 
 function getPlayerUUID() {
-  return localStorage.getItem("playerID");
+  let playerID = localStorage.getItem("playerID");
+
+  if (!playerID) {
+    generatePlayerUUID();
+    playerID = localStorage.getItem("playerID");
+  }
+
+  return playerID;
 }
 
 function startRematch() {
@@ -166,7 +174,7 @@ function createGrid() {
   updatePayerIndication();
 }
 
-socket.emit("joinRoom", "test1");
+socket.emit("joinRoom", "test1", getPlayerUUID());
 
 socket.on("playerAssign", (player) => {
   currentPlayer = player;

@@ -14,7 +14,7 @@ const publicFolder = "../public/";
 const apiPath = "/api/v1/";
 
 // Replace this with length of players in a room
-const players = [];
+const rooms = {};
 
 app.use(express.static(path.join(__dirname, publicFolder)));
 
@@ -33,13 +33,17 @@ io.on("connection", (socket) => {
   // });
 
   // ! This also fires on reload. Use userID to check and based on rooms
-  // TODO WIP
-  socket.on("checkRoomExists", (room) => {
-    const room = io.sockets.adapter.rooms.get(room);
-  });
+  // TODO wip create new room and check if room exists
+  // socket.on("checkRoomExists", (room) => {
+  //   const room = io.sockets.adapter.rooms.get(room);
+  // });
 
-  socket.on("joinRoom", (room) => {
+  socket.on("joinRoom", (room, userID) => {
     let playerCount = io.sockets.adapter.rooms.get(room);
+
+    if (!playerCount) {
+      rooms[room] = {};
+    }
 
     !playerCount ? (playerCount = 0) : (playerCount = playerCount.size);
 
@@ -54,6 +58,14 @@ io.on("connection", (socket) => {
     if (playerCount > 1) {
       playerAssign = -1;
     }
+
+    if (typeof rooms[room][userID] === "number") {
+      playerAssign = rooms[room][userID];
+    } else {
+      rooms[room][userID] = playerAssign;
+    }
+
+    console.log(rooms);
 
     socket.emit("playerAssign", playerAssign);
   });
