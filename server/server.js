@@ -32,12 +32,7 @@ io.on("connection", (socket) => {
   //   });
   // });
 
-  // ! This also fires on reload. Use userID to check and based on rooms
-  // TODO wip create new room and check if room exists
-  // socket.on("checkRoomExists", (room) => {
-  //   const room = io.sockets.adapter.rooms.get(room);
-  // });
-
+  // TODO send player state on join
   socket.on("joinRoom", (room, userID) => {
     let playerCount = io.sockets.adapter.rooms.get(room);
 
@@ -51,7 +46,6 @@ io.on("connection", (socket) => {
 
     let playerAssign = 0;
 
-    // ? This is buggy on reload
     if (playerCount === 1) {
       playerAssign = 1;
     }
@@ -67,7 +61,39 @@ io.on("connection", (socket) => {
 
     console.log(rooms);
 
-    socket.emit("playerAssign", playerAssign);
+    socket.emit("playerAssign", playerAssign, userID);
+  });
+
+  // TODO Make spectator the player and reset game
+  socket.on("leaveRoom", (room, userID) => {
+    // ! This is buggy
+    if (userID in rooms[room]) {
+      const firstSpectator = Object.values(rooms[room]).findIndex(
+        (role) => role === -1
+      );
+
+      // console.log("First spectator ", firstSpectator);
+
+      if (firstSpectator != -1) {
+        // ? Kinda messy
+        const foundPlayer = Object.keys(rooms[room])[firstSpectator];
+
+        rooms[room][foundPlayer] = rooms[room][userID];
+
+        io.to(room).emit("playerAssign", rooms[room][foundPlayer], foundPlayer);
+      }
+
+      socket.leave(room);
+
+      delete rooms[room][userID];
+
+      // If room is empty
+      if (!rooms[room]) {
+        delete rooms[room];
+      }
+
+      console.log(rooms[room]);
+    }
   });
 
   socket.on("updateMove", (row, col) => {
@@ -81,6 +107,11 @@ io.on("connection", (socket) => {
 
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, publicFolder, "index.html"));
+});
+
+// Logic is handled in the javascript file.
+app.get("/room/:roomID", function (req, res) {
+  res.sendFile(path.join(__dirname, publicFolder, "room.html"));
 });
 
 server.listen(3000);

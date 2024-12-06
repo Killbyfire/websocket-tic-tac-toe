@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/game.css" />
-    <title>Index file</title>
+    <title>Current room</title>
   </head>
   <body>
-    <script src="/js/main.js"></script>
+    <h2 id="currentTurn"></h2>
+    <div id="grid"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/room.js"></script>
   </body>
 </html>
