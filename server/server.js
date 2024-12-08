@@ -32,7 +32,11 @@ io.on("connection", (socket) => {
   //   });
   // });
 
-  // TODO send player state on join
+  socket.on("sendGrid", (room, grid, turn) => {
+    console.log(turn);
+    io.to(room).emit("updateGrid", grid, turn);
+  });
+
   socket.on("joinRoom", (room, userID) => {
     let playerCount = io.sockets.adapter.rooms.get(room);
 
@@ -59,6 +63,11 @@ io.on("connection", (socket) => {
       rooms[room][userID] = playerAssign;
     }
 
+    if (playerCount >= 1) {
+      const player = playerAssign === 0 ? 1 : 0;
+      io.to(room).emit("sendGrid", player);
+    }
+
     console.log(rooms);
 
     socket.emit("playerAssign", playerAssign, userID);
@@ -66,13 +75,13 @@ io.on("connection", (socket) => {
 
   // TODO Make spectator the player and reset game
   socket.on("leaveRoom", (room, userID) => {
-    // ! This is buggy
-    if (userID in rooms[room]) {
+    if (
+      typeof rooms[room] !== "undefined" &&
+      typeof rooms[room][userID] !== "undefined"
+    ) {
       const firstSpectator = Object.values(rooms[room]).findIndex(
         (role) => role === -1
       );
-
-      // console.log("First spectator ", firstSpectator);
 
       if (firstSpectator != -1) {
         // ? Kinda messy
@@ -81,6 +90,7 @@ io.on("connection", (socket) => {
         rooms[room][foundPlayer] = rooms[room][userID];
 
         io.to(room).emit("playerAssign", rooms[room][foundPlayer], foundPlayer);
+        io.to(room).emit("newGame");
       }
 
       socket.leave(room);
@@ -91,17 +101,15 @@ io.on("connection", (socket) => {
       if (!rooms[room]) {
         delete rooms[room];
       }
-
-      console.log(rooms[room]);
     }
   });
 
-  socket.on("updateMove", (row, col) => {
-    io.emit("updateMove", row, col);
+  socket.on("updateMove", (room, row, col) => {
+    io.to(room).emit("updateMove", row, col);
   });
 
-  socket.on("playerWon", () => {
-    io.emit("playerWon");
+  socket.on("playerWon", (room) => {
+    io.to(room).emit("playerWon");
   });
 });
 

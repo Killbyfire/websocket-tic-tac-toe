@@ -55,9 +55,7 @@ function updatePayerIndication() {
 }
 
 function markSquare(row, col) {
-  if (inputBlocked) {
-    return;
-  }
+  if (inputBlocked) return;
 
   const square = document.getElementById(`col-${row}-${col}`);
 
@@ -152,15 +150,19 @@ function checkWinState() {
   }
 
   if (won) {
-    socket.emit("playerWon");
+    socket.emit("playerWon", roomID);
   }
 
   return;
 }
 
 //TODO Make this cleaner
-function createGrid(madeGrid) {
+// Create grid based on madeGrid
+function createGrid(currentGrid) {
   const grid = document.getElementById("grid");
+
+  console.log(currentGrid);
+  grid.innerHTML = "";
 
   for (let i = 0; i < 3; i++) {
     const row = document.createElement("div");
@@ -169,11 +171,16 @@ function createGrid(madeGrid) {
     for (let j = 0; j < 3; j++) {
       const col = document.createElement("div");
       const image = document.createElement("img");
+
+      if (currentGrid && currentGrid[i][j] != -1) {
+        image.src = assetFolder + Object.values(players)[currentGrid[i][j]];
+      }
+
       col.id = `col-${i}-${j}`;
       col.classList.add("gridSquare");
       col.addEventListener("click", () => {
         if (currentPlayer === currentTurn) {
-          socket.emit("updateMove", i, j);
+          socket.emit("updateMove", roomID, i, j);
         }
       });
       col.appendChild(image);
@@ -184,22 +191,42 @@ function createGrid(madeGrid) {
   updatePayerIndication();
 }
 
-window.addEventListener("beforeunload", (ev) => {
-  socket.emit("leaveRoom", roomID, getPlayerUUID());
+socket.on("newGame", () => {
+  currentTurn = 0;
+  createGrid();
 });
 
-socket.on("playerAssign", (player, mentioned) => {
-  if (mentioned === getPlayerUUID()) {
-    currentPlayer = player;
+socket.on("sendGrid", (player) => {
+  if (player === currentPlayer) {
+    socket.emit("sendGrid", roomID, getBoard(), currentTurn);
+  }
+});
+
+socket.on("updateGrid", (currentGrid, turn) => {
+  if (currentGrid !== getBoard()) {
+    createGrid(currentGrid);
+    currentTurn = turn;
+    updatePayerIndication();
+  }
+});
+
+socket.on("playerAssign", (role, assignedPlayed) => {
+  if (assignedPlayed === getPlayerUUID()) {
+    currentPlayer = role;
   }
 });
 
 socket.on("updateMove", (row, col) => {
+  console.log("yo");
   markSquare(row, col);
 });
 
 socket.on("playerWon", () => {
   setWinText();
+});
+
+window.addEventListener("beforeunload", (ev) => {
+  socket.emit("leaveRoom", roomID, getPlayerUUID());
 });
 
 createGrid();
