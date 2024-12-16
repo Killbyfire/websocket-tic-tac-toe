@@ -11,7 +11,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const publicFolder = "../public/";
-const apiPath = "/api/v1/";
 
 // Replace this with length of players in a room
 const rooms = {};

@@ -1,5 +1,7 @@
 const players = { player1: "x-symbol.svg", player2: "o-symbol.svg" };
 
+const roomCode = document.getElementById("currentRoomCode");
+const roomShare = document.getElementById("currentRoomShare");
 const turnIndication = document.getElementById("currentTurn");
 
 const assetFolder = "../assets/";
@@ -12,14 +14,18 @@ let currentTurn = 0;
 let inputBlocked = false;
 let roomID;
 
-// TODO if user leaves it should open a spot, if everyone leaves it should just pop the key.
-
 if (!location.pathname.startsWith("/room")) {
   location.href = "/";
 } else {
   roomID = location.pathname.split("/")[2];
   socket.emit("joinRoom", roomID, getPlayerUUID());
 }
+
+roomCode.innerText = "Room code: " + roomID;
+
+roomShare.addEventListener("click", () => {
+  navigator.clipboard.writeText(location.href);
+});
 
 function generatePlayerUUID() {
   const newPlayerUUID = crypto.randomUUID();
@@ -191,6 +197,10 @@ function createGrid(currentGrid) {
   updatePayerIndication();
 }
 
+window.onbeforeunload = function () {
+  return "Are you sure?";
+};
+
 socket.on("newGame", () => {
   currentTurn = 0;
   createGrid();
@@ -217,7 +227,6 @@ socket.on("playerAssign", (role, assignedPlayed) => {
 });
 
 socket.on("updateMove", (row, col) => {
-  console.log("yo");
   markSquare(row, col);
 });
 
