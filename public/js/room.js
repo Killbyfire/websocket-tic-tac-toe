@@ -55,7 +55,7 @@ function setWinText() {
   inputBlocked = true;
 }
 
-function updatePayerIndication() {
+function updatePlayerIndication() {
   const playerNumber = currentTurn + 1;
   turnIndication.innerText = `It is currently player ${playerNumber}'s turn`;
 }
@@ -79,7 +79,7 @@ function markSquare(row, col) {
   // Use 0 and 1 and -1 for empty
   currentTurn ? (currentTurn = 0) : (currentTurn = 1);
   currentTurn ? (square.dataset.player = 0) : (square.dataset.player = 1);
-  updatePayerIndication();
+  updatePlayerIndication();
   checkWinState();
 }
 
@@ -167,7 +167,6 @@ function checkWinState() {
 function createGrid(currentGrid) {
   const grid = document.getElementById("grid");
 
-  console.log(currentGrid);
   grid.innerHTML = "";
 
   for (let i = 0; i < 3; i++) {
@@ -194,7 +193,7 @@ function createGrid(currentGrid) {
     }
   }
 
-  updatePayerIndication();
+  updatePlayerIndication();
 }
 
 window.onbeforeunload = function () {
@@ -216,7 +215,7 @@ socket.on("updateGrid", (currentGrid, turn) => {
   if (currentGrid !== getBoard()) {
     createGrid(currentGrid);
     currentTurn = turn;
-    updatePayerIndication();
+    updatePlayerIndication();
   }
 });
 
@@ -234,7 +233,7 @@ socket.on("playerWon", () => {
   setWinText();
 });
 
-window.addEventListener("beforeunload", (ev) => {
+window.addEventListener("beforeunload", () => {
   socket.emit("leaveRoom", roomID, getPlayerUUID());
 });
 

@@ -11,28 +11,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const publicFolder = "../public/";
+const port = 3000;
 
-// Replace this with length of players in a room
 const rooms = {};
 
 app.use(express.static(path.join(__dirname, publicFolder)));
 
 io.on("connection", (socket) => {
-  // socket.on("userConnected", (userID) => {
-  //   console.log("User connected with userID: " + userID);
-  // });
-  // socket.on("registerRoom", (roomDetails) => {
-  //   console.log(
-  //     "A new room has been created with the ID: " + roomDetails.roomID
-  //   );
-  //   currentRooms.push({
-  //     roomID: roomDetails.roomID,
-  //     players: [roomDetails.playerID],
-  //   });
-  // });
-
   socket.on("sendGrid", (room, grid, turn) => {
-    console.log(turn);
     io.to(room).emit("updateGrid", grid, turn);
   });
 
@@ -49,13 +35,13 @@ io.on("connection", (socket) => {
 
     let playerAssign = 0;
 
-    if (playerCount === 1) {
-      playerAssign = 1;
-    }
+    playerAssign = Object.values(rooms[room])[0] === 0 ? 1 : 0;
+
     if (playerCount > 1) {
       playerAssign = -1;
     }
 
+    // If user is already assigned
     if (typeof rooms[room][userID] === "number") {
       playerAssign = rooms[room][userID];
     } else {
@@ -72,7 +58,6 @@ io.on("connection", (socket) => {
     socket.emit("playerAssign", playerAssign, userID);
   });
 
-  // TODO Make spectator the player and reset game
   socket.on("leaveRoom", (room, userID) => {
     if (
       typeof rooms[room] !== "undefined" &&
@@ -121,4 +106,6 @@ app.get("/room/:roomID", function (req, res) {
   res.sendFile(path.join(__dirname, publicFolder, "room.html"));
 });
 
-server.listen(3000);
+server.listen(port, () => {
+  console.log("Listening on port", port)
+});
