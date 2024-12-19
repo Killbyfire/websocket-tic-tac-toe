@@ -3,13 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/css/game.css" />
-    <title>Index file</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <title>Tic Tac Toe Lobby</title>
   </head>
   <body>
-    <input id="roomID" />
-    <button id="joinRoom">Join room</button><br /><br />
-    <button id="generateRoom">Generate room</button>
-    <script src="/js/main.js"></script>
+    <div class="container">
+      <h1>Tic Tac Toe Lobby</h1>
+      <p>Join an existing game or create a new one</p>
+      <input type="text" placeholder="Enter Room ID" id="roomID" />
+      <button id="joinRoom">Join Room</button>
+      <div class="divider">OR</div>
+      <button id="generateRoom" class="secondary">Generate New Room</button>
+    </div>
+    <script src="./js/main.js"></script>
   </body>
 </html>
